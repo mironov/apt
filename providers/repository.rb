@@ -56,7 +56,10 @@ end
 def extract_fingerprints_from_cmd(cmd)
   so = Mixlib::ShellOut.new(cmd, env: { 'LANG' => 'en_US', 'LANGUAGE' => 'en_US' })
   so.run_command
-  so.stdout.split(/\n/).map do |t|
+  so.stdout.split(/\n\n/).map do |t|
+    # Treat expired keys as they don't exist
+    next if t =~ /^.*\[expired: .*\]$/
+
     if z = t.match(/^ +Key fingerprint = ([0-9A-F ]+)/) # rubocop: disable Lint/AssignmentInCondition
       z[1].split.join
     end
